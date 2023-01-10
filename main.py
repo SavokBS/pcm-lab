@@ -11,7 +11,7 @@ screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("PCM Lab.")
 
 
-debug = True
+debug = False
 
 # Set the initial position of the dot
 dot_pos = [400, 300]
