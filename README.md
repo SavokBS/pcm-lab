@@ -5,4 +5,5 @@ PCM Lab (Python Character Moving Lab) - a project which essence is to show what 
 PCM Lab (Лаборатория перемещения персонажей Python) - проект, суть которого показать на что способен PyGame в наши дни и потренировать собственные навыки в нем.
 
 
-(название придумал за 0,593 секунды не судите строго)
+![Screenshot](https://user-images.githubusercontent.com/88921908/212000318-0bdfd951-fe93-482e-8a27-79e3e86bfe4e.png)
+
