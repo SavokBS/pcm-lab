@@ -305,3 +305,7 @@ while running:
 
 # Quit
 pygame.quit()
+
+"""
+credits to https://github.com/savokbs. feel free to use it if you want to make this project better
+"""
