@@ -8,7 +8,7 @@ screen_size = (800, 600)
 screen = pygame.display.set_mode(screen_size)
 
 # Set the title of the window
-pygame.display.set_caption("PCM Lab.")
+pygame.display.set_caption("PCM Lab. | v2 | by savokbs in 2023")
 
 
 debug = False
@@ -21,7 +21,7 @@ dot_hp = 100
 # Bullet conf
 
 bullet_pos = None
-bullet_speed = 15
+bullet_speed = 5
 
 # Floor conf
 floor_color = "black_white"
@@ -33,7 +33,7 @@ menu_background_filler = (0, 0, 255)
 button_color = (255, 255, 255)
 button2_color = (255, 255, 255)
 
-#Mtext conf
+# Mtext conf
 mtext_color = (255, 255, 255)
 
 
@@ -53,19 +53,38 @@ button_rect = button_text_surface.get_rect()
 button_rect.center = (400, 300)
 
 
-
-
-
+# Chat conf
+chat_open = True
+chat_active = False
+user_input = "Write something..."
+previous_user_input = user_input
+chat_color_inactive = pygame.Color('lightskyblue3')
+chat_color_active = pygame.Color('dodgerblue2')
+chat_color = chat_color_inactive
+bubble_start_time = pygame.time.get_ticks()
+dudka = False
 # Main game loop
 running = True
 while running:
+    
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
+            event_pos = event.pos
+            if chat_input_box.collidepoint(event_pos):
+                # Toggle the chat_active variable.
+                user_input = ""
+                chat_active = not chat_active
+            else:
+                chat_active = False
+            сhat_color = chat_color_active if chat_active else chat_color_inactive
+            
+            
+            # Change the current color of the input box.
+            
             if event.button == 1:
-                event_pos = event.pos
                 if button_rect.collidepoint(event_pos) and paused:
                     # Change the color of the floor
                     if floor_color == "black_white":
@@ -86,7 +105,7 @@ while running:
                         debug = True
                         
                 # When LMB is clicked, create a new bullet at the position of the dot
-                if not bullet_pos and not paused:
+                if not bullet_pos and not paused and not chat_active:
                     bullet_pos = list(dot_pos)
                     mouse_pos = pygame.mouse.get_pos()
                     angle = math.atan2(mouse_pos[1] - dot_pos[1], mouse_pos[0] - dot_pos[0])
@@ -95,8 +114,23 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 menu_open = not menu_open
                 paused = not paused
+            if event.key == pygame.K_c:
+                chat_open = not chat_open
+            if chat_active:
+                if event.key == pygame.K_RETURN:
+                    print(user_input)
+                    dudka = True
+                    previous_user_input = user_input
+                    bubble_start_time = pygame.time.get_ticks()
+                    user_input = "Write something..."
+                    chat_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    user_input = user_input[:-1]
+                else:
+                    if len(user_input) < 21:
+                        user_input += event.unicode
 
-    if not paused:
+    if not paused and not chat_active:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
             dot_pos[1] -= 5
@@ -137,6 +171,8 @@ while running:
     button2_rect = button2_text_surface.get_rect()
     button2_rect.center = (400, 250)
 
+    
+
 
     # Create menu text
     font = pygame.font.Font(None, 30)
@@ -160,6 +196,32 @@ while running:
     # Draw the dot
     pygame.draw.circle(screen, (255, 0, 0), dot_pos, dot_size)
 
+
+    # Draw the chat
+    if chat_open:
+        chat_input_box = pygame.Rect(50, 500, 350, 25)
+        pygame.draw.rect(screen, chat_color, chat_input_box)
+        chat_input_box_round = pygame.Rect(50, 500, 350, 25)
+        pygame.draw.rect(screen, (0,0,0), chat_input_box_round,2)
+        
+        # Draw the chat text
+        
+        txt_surface = font.render(user_input, True, (255, 255, 255))
+        screen.blit(txt_surface, (chat_input_box.x+5, chat_input_box.y+5))
+
+
+    current_time = pygame.time.get_ticks()
+    
+
+    if dudka:
+        if current_time - bubble_start_time < 5 * 1000: # 5 seconds
+            chat_output_box = pygame.Rect(dot_pos[0]-160, dot_pos[1]-50, 350, 25)
+            pygame.draw.rect(screen, (255,255,255), chat_output_box)
+            chat_output_box_round = pygame.Rect(dot_pos[0]-160, dot_pos[1]-50, 350, 25)
+            pygame.draw.rect(screen, (0,0,0), chat_output_box_round,2)
+            txt_surface = font.render(previous_user_input, True, (0,0,0))
+            screen.blit(txt_surface, (chat_output_box.x+5, chat_output_box.y+5))
+        
 
     if menu_open:
         # Draw the menu background
@@ -216,14 +278,23 @@ while running:
         pygame.draw.rect(screen, (0, 0, 255), (700, 5, 710, 30))
         screen.blit(coords_surface, (710, 10))
 
-    #Draw HP
-    font = pygame.font.Font(None, 30)
-    hp_text = str(dot_hp) + " HP"
-    hp_text_surface = font.render(hp_text, True, (0, 0, 0))
-    hp_rect = hp_text_surface.get_rect()
-    hp_rect.center = (380, 10)
-    pygame.draw.rect(screen, (255, 0, 0), hp_rect)
-    screen.blit(hp_text_surface, hp_rect)
+        # Draw ticks
+        ticks_text = str(pygame.time.get_ticks()) + " ticks"
+        font = pygame.font.Font(None, 30)
+        ticks_surface = font.render(ticks_text, True, (0, 0, 0))
+        pygame.draw.rect(screen, (0, 0, 255), (300, 5, 200, 30))
+        screen.blit(ticks_surface, (350, 10))
+
+
+
+    # #Draw HP
+    # font = pygame.font.Font(None, 30)
+    # hp_text = str(dot_hp) + " HP"
+    # hp_text_surface = font.render(hp_text, True, (0, 0, 0))
+    # hp_rect = hp_text_surface.get_rect()
+    # hp_rect.center = (380, 10)
+    # pygame.draw.rect(screen, (255, 0, 0), hp_rect)
+    # screen.blit(hp_text_surface, hp_rect)
     
 
     # Update the screen
@@ -234,7 +305,3 @@ while running:
 
 # Quit
 pygame.quit()
-
-"""
-credits to https://github.com/savokbs. feel free to use it if you want to make this project better
-"""
